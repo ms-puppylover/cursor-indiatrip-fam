@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✈️ India Travel Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #8B7355 0%, #A0826D 50%, #6B8E5A 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .game-container {
+            width: 90vw;
+            max-width: 1200px;
+            height: 90vh;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 50%, #98FB98 100%);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+            border: 5px solid #fff;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('istockphoto-843969550-612x612.jpg');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 0;
+            mix-blend-mode: multiply;
+            filter: brightness(1.2) contrast(1.3);
+        }
+
+        .clouds {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.7;
+            animation: float linear infinite;
+        }
+
+        .cloud:before,
+        .cloud:after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+        }
+
+        .cloud:before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        .cloud:after {
+            width: 60px;
+            height: 60px;
+            top: -35px;
+            right: 10px;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateX(-100px);
+            }
+            to {
+                transform: translateX(calc(100vw + 100px));
+            }
+        }
+
+        .vehicle {
+            position: fixed;
+            font-size: 60px;
+            transition: all 0.5s ease;
+            z-index: 25;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .vehicle.plane {
+            animation: bounce 2s ease-in-out infinite;
+            transform-origin: center center;
+        }
+
+        .vehicle.car {
+            animation: drive 1s ease-in-out infinite;
+            transform-origin: center center;
+        }
+
+        .vehicle.house {
+            animation: housePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes drive {
+            0%, 100% {
+                transform: translateX(0) translateY(0);
+            }
+            25% {
+                transform: translateX(2px) translateY(1px);
+            }
+            75% {
+                transform: translateX(-2px) translateY(-1px);
+            }
+        }
+
+        @keyframes housePulse {
+            0%, 100% {
+                opacity: 0.8;
+                filter: brightness(1);
+            }
+            50% {
+                opacity: 1;
+                filter: brightness(1.2);
+            }
+        }
+
+        .city-marker {
+            position: absolute;
+            background: #ff6b6b;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 5;
+            border: 3px solid white;
+            background-color: rgba(255, 107, 107, 0.9);
+        }
+
+        .city-marker.outside {
+            position: fixed;
+            z-index: 15;
+        }
+
+        .city-marker:hover {
+            transform: scale(1.2);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+
+        .city-marker.visited {
+            background-color: rgba(81, 207, 102, 0.9);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .city-marker.current {
+            background-color: rgba(255, 212, 59, 0.9);
+            animation: glow 1.5s ease-in-out infinite;
+            z-index: 15;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 10px #ffd43b;
+            }
+            50% {
+                box-shadow: 0 0 20px #ffd43b, 0 0 30px #ffd43b;
+            }
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 20;
+            max-width: 300px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-panel h2 {
+            color: #8B7355;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .info-panel p {
+            margin: 5px 0;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .speed-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 10px;
+        }
+
+        .speed-label {
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .speed-btn {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .speed-btn.active {
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #8B7355 0%, #A0826D 50%, #6B8E5A 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            font-family: 'Comic Sans MS', cursive;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 20;
+            min-width: 200px;
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-bar h3 {
+            color: #8B7355;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .progress-fill {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #8B7355 0%, #A0826D 50%, #6B8E5A 100%);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .route-line {
+            position: absolute;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.5);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .celebration {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            z-index: 100;
+            display: none;
+            text-align: center;
+            color: #ffd43b;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: celebrate 1s ease-in-out;
+        }
+
+        @keyframes celebrate {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+        }
+
+        .people-info {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="clouds" id="clouds"></div>
+        
+        <div class="info-panel">
+            <h2>✈️🚗 Travel Adventure</h2>
+            <p id="current-city">Starting from San Francisco...</p>
+            <p id="current-date">Date: Dec 21, 2025</p>
+            <p id="current-time">Time: 1:55 PM</p>
+            <div class="people-info" id="people-info"></div>
+        </div>
+
+        <div class="progress-bar">
+            <h3>Journey Progress</h3>
+            <div class="progress-fill">
+                <div class="progress-bar-inner" id="progress-bar-inner" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" style="margin-top: 10px; font-size: 14px; color: #666;">0% Complete</p>
+        </div>
+
+        <div class="vehicle" id="vehicle">✈️</div>
+        
+        <div class="celebration" id="celebration">🎉 Trip Complete! 🎉</div>
+
+        <div class="controls">
+            <button class="btn" id="reset-btn" onclick="resetGame()">🔄 Reset</button>
+            <button class="btn" id="prev-btn" onclick="previousCity()">← Previous</button>
+            <button class="btn" id="next-btn" onclick="nextCity()">Next →</button>
+            <button class="btn" id="auto-btn" onclick="toggleAuto()">Auto Play</button>
+            <div class="speed-controls">
+                <span class="speed-label">Speed:</span>
+                <button class="btn speed-btn" id="speed-slow" onclick="setSpeed('slow')">🐌 Slow</button>
+                <button class="btn speed-btn active" id="speed-normal" onclick="setSpeed('normal')">▶️ Normal</button>
+                <button class="btn speed-btn" id="speed-fast" onclick="setSpeed('fast')">⚡ Fast</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const itinerary = [
+            { city: "San Francisco", date: "12/21/2025", day: "Sunday", departure: "1:55 PM", arrival: "IN TRANSIT", people: "Kamal, Ramya, Radhika, Malathy", x: 10, y: 30, isCarTrip: false },
+            { city: "Mumbai", date: "12/22/2025", day: "Monday", departure: null, arrival: "12:25 AM", people: "Kamal, Ramya, Radhika, Malathy", x: 17, y: 59, isCarTrip: false },
+            { city: "Mumbai", date: "12/23/2025", day: "Tuesday", departure: null, arrival: null, people: "Kamal, Ramya, Radhika, Malathy", x: 17, y: 59, isCarTrip: false },
+            { city: "Mumbai", date: "12/24/2025", day: "Wednesday", departure: null, arrival: null, people: "Kamal, Ramya, Radhika, Malathy", x: 17, y: 59, isCarTrip: false },
+            { city: "Mumbai", date: "12/25/2025", day: "Thursday", departure: null, arrival: null, people: "Kamal, Ramya, Radhika, Malathy", x: 17, y: 59, isCarTrip: false },
+            { city: "Ahmedabad", date: "12/26/2025", day: "Friday", departure: "10:00 AM", arrival: "11:20 AM", people: "Kamal, Ramya, Radhika, Malathy, Dia, Payal", x: 16, y: 46, isCarTrip: false },
+            { city: "Palitana", date: "12/26/2025", day: "Friday", departure: "1:00 PM", arrival: "4:30 PM", people: "Kamal, Ramya, Radhika, Malathy, Dia, Payal", x: 13, y: 51, isCarTrip: true },
+            { city: "Palitana", date: "12/27/2025", day: "Saturday", departure: null, arrival: null, people: "Kamal, Ramya, Radhika, Malathy, Dia, Payal", x: 13, y: 51, isCarTrip: false },
+            { city: "Ahmedabad", date: "12/28/2025", day: "Sunday", departure: "10:00 AM", arrival: "1:30 PM", people: "Kamal, Radhika, Malathy, Dia, Payal", x: 16, y: 46, isCarTrip: true },
+            { city: "Chennai", date: "12/28/2025", day: "Sunday", departure: "9:00 PM", arrival: "11:20 PM", people: "Kamal, Radhika, Malathy", x: 42, y: 75, isCarTrip: false },
+            { city: "Chennai", date: "12/29/2025", day: "Monday", departure: null, arrival: null, people: "Kamal, Radhika, Malathy", x: 42, y: 75, isCarTrip: false },
+            { city: "Chennai", date: "12/30/2025", day: "Tuesday", departure: null, arrival: null, people: "Kamal, Radhika, Malathy", x: 42, y: 75, isCarTrip: false },
+            { city: "Mahabalipuram", date: "12/31/2025", day: "Wednesday", departure: "10:00 AM", arrival: "11:30 AM", people: "Kamal, Ramya, Radhika, Malathy, Dia, Payal, Lakshman, Jayanthi, Chandana", x: 42, y: 81, notes: "Airbnb in Mahabalipuram", isCarTrip: true },
+            { city: "Mahabalipuram", date: "01/01/2026", day: "Thursday", departure: null, arrival: null, people: "Kamal, Ramya, Radhika, Malathy, Dia, Payal, Lakshman, Jayanthi, Chandana", x: 42, y: 81, isCarTrip: false },
+            { city: "Mahabalipuram", date: "01/02/2026", day: "Friday", departure: null, arrival: null, people: "Kamal, Ramya, Radhika, Malathy, Dia, Payal, Lakshman, Jayanthi, Chandana", x: 42, y: 81, isCarTrip: false },
+            { city: "Chennai", date: "01/03/2026", day: "Saturday", departure: "7:30 AM", arrival: "8:45 AM", people: "Kamal, Ramya, Radhika, Malathy", x: 42, y: 75, isCarTrip: true },
+            { city: "Delhi", date: "01/03/2026", day: "Saturday", departure: "4:20 PM", arrival: "7:30 PM", people: "Kamal, Ramya, Radhika, Malathy", x: 31, y: 27, isCarTrip: false },
+            { city: "Pilani", date: "01/04/2026", day: "Sunday", departure: "8:00 AM", arrival: "1:00 PM", people: "Kamal, Ramya, Radhika, Malathy", x: 26, y: 28, isCarTrip: true },
+            { city: "Pilani", date: "01/05/2026", day: "Monday", departure: null, arrival: null, people: "Kamal, Ramya, Radhika, Malathy", x: 26, y: 28, isCarTrip: false },
+            { city: "Delhi", date: "01/05/2026", day: "Monday", departure: "10:00 AM", arrival: "6:00 PM", people: "Kamal, Ramya, Radhika, Malathy", x: 31, y: 27, isCarTrip: true },
+            { city: "San Francisco", date: "01/06/2026", day: "Tuesday", departure: "3:20 AM", arrival: "11:50 AM", people: "Kamal, Ramya, Radhika, Malathy", x: 10, y: 30, isCarTrip: false }
+        ];
+
+        let currentIndex = 0;
+        let autoPlay = false;
+        let autoPlayInterval = null;
+        let playSpeed = 'normal'; // 'slow', 'normal', 'fast'
+
+        const vehicle = document.getElementById('vehicle');
+        const currentCityEl = document.getElementById('current-city');
+        const currentDateEl = document.getElementById('current-date');
+        const currentTimeEl = document.getElementById('current-time');
+        const peopleInfoEl = document.getElementById('people-info');
+        const progressBarInner = document.getElementById('progress-bar-inner');
+        const progressText = document.getElementById('progress-text');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const celebration = document.getElementById('celebration');
+
+        // Create clouds
+        function createClouds() {
+            const cloudsContainer = document.getElementById('clouds');
+            for (let i = 0; i < 10; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                cloud.style.width = (60 + Math.random() * 40) + 'px';
+                cloud.style.height = (30 + Math.random() * 20) + 'px';
+                cloud.style.top = Math.random() * 100 + '%';
+                cloud.style.animationDuration = (20 + Math.random() * 30) + 's';
+                cloud.style.animationDelay = Math.random() * 5 + 's';
+                cloudsContainer.appendChild(cloud);
+            }
+        }
+
+        // Create city markers
+        function createCityMarkers() {
+            const uniqueCities = {};
+            const gameContainer = document.querySelector('.game-container');
+            const containerRect = gameContainer.getBoundingClientRect();
+            let sanFranciscoMarker = null;
+            
+            itinerary.forEach((item, index) => {
+                const cityKey = item.city;
+                
+                // Special handling for San Francisco - only create one marker
+                if (item.city === "San Francisco") {
+                    if (!sanFranciscoMarker) {
+                        sanFranciscoMarker = document.createElement('div');
+                        sanFranciscoMarker.className = 'city-marker outside';
+                        sanFranciscoMarker.id = 'marker-sanfrancisco';
+                        sanFranciscoMarker.textContent = item.city;
+                        sanFranciscoMarker.dataset.cityIndex = index;
+                        sanFranciscoMarker.onclick = () => {
+                            // Find the first San Francisco entry
+                            const sfIndex = itinerary.findIndex(i => i.city === "San Francisco");
+                            goToCity(sfIndex);
+                        };
+                        // Position relative to viewport, left side of screen
+                        sanFranciscoMarker.style.left = '5%';
+                        sanFranciscoMarker.style.top = '50%';
+                        sanFranciscoMarker.style.transform = 'translateY(-50%)';
+                        document.body.appendChild(sanFranciscoMarker);
+                    }
+                } else if (!uniqueCities[cityKey] || item.departure) {
+                    uniqueCities[cityKey] = item;
+                    const marker = document.createElement('div');
+                    marker.className = 'city-marker';
+                    marker.id = `marker-${index}`;
+                    marker.textContent = item.city;
+                    marker.onclick = () => goToCity(index);
+                    marker.style.left = item.x + '%';
+                    marker.style.top = item.y + '%';
+                    gameContainer.appendChild(marker);
+                }
+            });
+        }
+
+        function updateVehiclePosition() {
+            const current = itinerary[currentIndex];
+            const gameContainer = document.querySelector('.game-container');
+            const containerRect = gameContainer.getBoundingClientRect();
+            
+            // Calculate rotation based on direction of travel
+            let rotation = 0;
+            if (currentIndex < itinerary.length - 1 && !current.departure && !current.arrival) {
+                // If staying, no rotation
+                rotation = 0;
+            } else if (currentIndex < itinerary.length - 1) {
+                // Calculate angle to next destination
+                const next = itinerary[currentIndex + 1];
+                let currentX, currentY, nextX, nextY;
+                
+                if (current.city === "San Francisco") {
+                    currentX = 5; // 5% from left
+                    currentY = 50; // 50% from top
+                } else {
+                    currentX = current.x;
+                    currentY = current.y;
+                }
+                
+                if (next.city === "San Francisco") {
+                    nextX = 5;
+                    nextY = 50;
+                } else {
+                    nextX = next.x;
+                    nextY = next.y;
+                }
+                
+                const dx = nextX - currentX;
+                const dy = nextY - currentY;
+                rotation = Math.atan2(dy, dx) * (180 / Math.PI);
+            }
+            
+            // Get current transform from animation and add rotation
+            const baseTransform = current.city === "San Francisco" 
+                ? 'translateY(-50%)' 
+                : 'translate(-50%, -50%)';
+            
+            // If staying, no rotation needed
+            const isStaying = !current.departure && !current.arrival;
+            if (isStaying) {
+                rotation = 0;
+            }
+            
+            if (current.city === "San Francisco") {
+                // Position vehicle outside container, left side of screen
+                vehicle.style.left = '5%';
+                vehicle.style.top = '50%';
+                if (rotation !== 0 && !isStaying) {
+                    vehicle.style.animation = 'none';
+                    vehicle.style.transform = `${baseTransform} rotate(${rotation}deg)`;
+                } else {
+                    vehicle.style.removeProperty('animation');
+                    vehicle.style.transform = baseTransform;
+                }
+            } else {
+                // Position vehicle inside container
+                const containerLeft = containerRect.left;
+                const containerTop = containerRect.top;
+                const containerWidth = containerRect.width;
+                const containerHeight = containerRect.height;
+                
+                const leftPos = containerLeft + (current.x / 100) * containerWidth;
+                const topPos = containerTop + (current.y / 100) * containerHeight;
+                
+                vehicle.style.left = leftPos + 'px';
+                vehicle.style.top = topPos + 'px';
+                if (rotation !== 0 && !isStaying) {
+                    vehicle.style.animation = 'none';
+                    vehicle.style.transform = `${baseTransform} rotate(${rotation}deg)`;
+                } else {
+                    vehicle.style.removeProperty('animation');
+                    vehicle.style.transform = baseTransform;
+                }
+            }
+        }
+
+        function updateDisplay() {
+            const current = itinerary[currentIndex];
+            
+            // Check if staying in a city (no departure/arrival)
+            const isStaying = !current.departure && !current.arrival;
+            
+            // Determine if we're on a car trip
+            // If staying in a city (no departure/arrival), check how we arrived
+            let isCarTrip = current.isCarTrip;
+            
+            // If staying in a city, look back to find how we arrived
+            if (isStaying) {
+                // Look backwards to find the arrival entry for this city
+                for (let i = currentIndex - 1; i >= 0; i--) {
+                    if (itinerary[i].city === current.city && itinerary[i].arrival) {
+                        isCarTrip = itinerary[i].isCarTrip;
+                        break;
+                    }
+                }
+            }
+            
+            // Update vehicle position and type
+            updateVehiclePosition();
+            
+            if (isStaying) {
+                vehicle.textContent = '🏠';
+                vehicle.className = 'vehicle house';
+            } else if (isCarTrip) {
+                vehicle.textContent = '🚗';
+                vehicle.className = 'vehicle car';
+            } else {
+                vehicle.textContent = '✈️';
+                vehicle.className = 'vehicle plane';
+            }
+
+            // Update info panel
+            let modeIcon;
+            if (isStaying) {
+                modeIcon = '🏠';
+            } else {
+                modeIcon = isCarTrip ? '🚗' : '✈️';
+            }
+            currentCityEl.textContent = `${modeIcon} ${current.city}`;
+            currentDateEl.textContent = `Date: ${current.date} (${current.day})`;
+            
+            if (current.departure) {
+                const nextMode = currentIndex < itinerary.length - 1 && itinerary[currentIndex + 1].isCarTrip ? '🚗' : '✈️';
+                currentTimeEl.textContent = `Departure: ${current.departure} ${nextMode}`;
+            } else if (current.arrival) {
+                currentTimeEl.textContent = `Arrival: ${current.arrival}`;
+            } else {
+                currentTimeEl.textContent = `Staying in ${current.city}`;
+            }
+
+            if (current.people) {
+                peopleInfoEl.textContent = `👥 ${current.people}`;
+            } else {
+                peopleInfoEl.textContent = '';
+            }
+
+            if (current.notes) {
+                peopleInfoEl.textContent += ` | ${current.notes}`;
+            }
+
+            // Update progress
+            const progress = ((currentIndex + 1) / itinerary.length) * 100;
+            progressBarInner.style.width = progress + '%';
+            progressText.textContent = Math.round(progress) + '% Complete';
+
+            // Update city markers
+            document.querySelectorAll('.city-marker').forEach((marker) => {
+                const markerId = marker.id;
+                
+                // Special handling for San Francisco marker
+                if (markerId === 'marker-sanfrancisco') {
+                    marker.classList.remove('current', 'visited');
+                    // Check if we're at any San Francisco entry
+                    const isAtSanFrancisco = current.city === "San Francisco";
+                    const hasVisitedSanFrancisco = currentIndex > 0 && itinerary.some((item, idx) => 
+                        idx < currentIndex && item.city === "San Francisco"
+                    );
+                    
+                    if (isAtSanFrancisco) {
+                        marker.classList.add('current');
+                    } else if (hasVisitedSanFrancisco) {
+                        marker.classList.add('visited');
+                    }
+                } else {
+                    const markerIndex = parseInt(markerId.replace('marker-', ''));
+                    marker.classList.remove('current', 'visited');
+                    if (markerIndex === currentIndex) {
+                        marker.classList.add('current');
+                    } else if (markerIndex < currentIndex) {
+                        marker.classList.add('visited');
+                    }
+                }
+            });
+
+            // Update buttons
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === itinerary.length - 1;
+
+            // Check if trip is complete
+            if (currentIndex === itinerary.length - 1) {
+                celebration.style.display = 'block';
+                setTimeout(() => {
+                    celebration.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function nextCity() {
+            if (currentIndex < itinerary.length - 1) {
+                currentIndex++;
+                updateDisplay();
+            }
+        }
+
+        function previousCity() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateDisplay();
+            }
+        }
+
+        function goToCity(index) {
+            currentIndex = index;
+            updateDisplay();
+        }
+
+        function resetGame() {
+            // Stop auto-play if it's running
+            if (autoPlay) {
+                toggleAuto();
+            }
+            // Reset to beginning
+            currentIndex = 0;
+            updateDisplay();
+        }
+
+        function getSpeedInterval() {
+            switch(playSpeed) {
+                case 'slow': return 4000; // 4 seconds
+                case 'fast': return 200;  // 0.2 seconds - really fast!
+                case 'normal': 
+                default: return 800; // 0.8 seconds (old fast speed)
+            }
+        }
+
+        function setSpeed(speed) {
+            playSpeed = speed;
+            
+            // Update button active states
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`speed-${speed}`).classList.add('active');
+            
+            // If auto-play is running, restart it with new speed
+            if (autoPlay) {
+                if (autoPlayInterval) {
+                    clearInterval(autoPlayInterval);
+                }
+                autoPlayInterval = setInterval(() => {
+                    if (currentIndex < itinerary.length - 1) {
+                        nextCity();
+                    } else {
+                        toggleAuto();
+                    }
+                }, getSpeedInterval());
+            }
+        }
+
+        function toggleAuto() {
+            autoPlay = !autoPlay;
+            const btn = document.getElementById('auto-btn');
+            
+            if (autoPlay) {
+                btn.textContent = 'Stop Auto';
+                autoPlayInterval = setInterval(() => {
+                    if (currentIndex < itinerary.length - 1) {
+                        nextCity();
+                    } else {
+                        toggleAuto();
+                    }
+                }, getSpeedInterval());
+            } else {
+                btn.textContent = 'Auto Play';
+                if (autoPlayInterval) {
+                    clearInterval(autoPlayInterval);
+                    autoPlayInterval = null;
+                }
+            }
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextCity();
+            } else if (e.key === 'ArrowLeft') {
+                previousCity();
+            }
+        });
+
+        // Handle window resize to update vehicle position and San Francisco markers
+        window.addEventListener('resize', () => {
+            updateVehiclePosition();
+            // Update San Francisco marker positions
+            document.querySelectorAll('.city-marker.outside').forEach(marker => {
+                marker.style.left = '5%';
+                marker.style.top = '50%';
+                marker.style.transform = 'translateY(-50%)';
+            });
+        });
+
+        // Initialize
+        createClouds();
+        createCityMarkers();
+        updateDisplay();
+    </script>
+</body>
+</html>
